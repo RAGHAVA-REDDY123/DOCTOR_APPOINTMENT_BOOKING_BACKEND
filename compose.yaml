@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: 'postgres:16-alpine'
+    environment:
+      - 'POSTGRES_DB=mediconnect'
+      - 'POSTGRES_PASSWORD=mediconnect'
+      - 'POSTGRES_USER=mediconnect'
+    ports:
+      - '5432:5432'
+
+  app:
+    image: 'maven:3.9.9-eclipse-temurin-21'
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    command: ['./mvnw', 'spring-boot:run', '-Dspring-boot.run.profiles=docker']
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/mediconnect
+      - DB_USERNAME=mediconnect
+      - DB_PASSWORD=mediconnect
+      - JWT_SECRET=super-secret-dev-key-change-me
+      - JWT_EXPIRATION_MS=86400000
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
